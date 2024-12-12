@@ -1,48 +1,52 @@
 let btnAdd = document.querySelector(".add");
 let input = document.querySelector(".input");
 let todos = document.querySelector(".todos");
-let deleteBtn = document.querySelectorAll(".delete");
-let editBtn = document.querySelectorAll(".edit");
-// const itemsArray = [];
+let notodo = document.querySelector(".noTodo");
+
 const itemsArray = localStorage.getItem("items")
   ? JSON.parse(localStorage.getItem("items"))
   : [];
 
 btnAdd.addEventListener("click", addtask);
 
-deleteBtn.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    console.log("delete is clickedd...");
-    deleteTask();
-  });
-});
-
-editBtn.forEach(function (btn) {
-  btn.addEventListener("click", (e) => {
-    console.log("edit is clickedd...");
+todos.addEventListener("click", function (e) {
+  if (e.target.classList.contains("delete")) {
+    deleteTask(e);
+  }
+  if (e.target.classList.contains("edit")) {
     editTask(e);
-  });
+  }
 });
 
-function deleteTask() {
-  console.log("delete");
+function deleteTask(e) {
+  let index = e.target.getAttribute("data-index");
   itemsArray.splice(index, 1);
   localStorage.setItem("items", JSON.stringify(itemsArray));
   displayTask();
+  location.reload()
 }
 
 function editTask(e) {
-  console.log("editing......");
-  let todo = e.target.parentElement.parentElement.querySelector("p");
-  input.value = todo.innerHTML;
+  let index = e.target.getAttribute("data-index");
+  input.value = itemsArray[index];
+  itemsArray.splice(index, 1);
+  localStorage.setItem("items", JSON.stringify(itemsArray));
+  displayTask();
+  location.reload()
 }
 
 function addtask() {
   let inputVal = input.value;
-  itemsArray.push(inputVal);
-  localStorage.setItem("items", JSON.stringify(itemsArray));
-  displayTask();
-  input.value=""
+  if(inputVal.length>3){
+    itemsArray.push(inputVal);
+    localStorage.setItem("items", JSON.stringify(itemsArray));
+    displayTask();
+    input.value = "";
+  }
+  else{
+    alert("Todo Length must be greater than 3")
+  }
+  location.reload()
 }
 
 function displayTask() {
@@ -54,14 +58,24 @@ function displayTask() {
                         <p>${itemsArray[i]}</p>
                     </div>
                     <div class="icons">
-                        <i class="fa-solid fa-pen edit"></i>
-                        <i class="fa-regular fa-trash-can delete"></i>
+                        <i class="fa-solid fa-pen edit" data-index="${i}"></i>
+                        <i class="fa-regular fa-trash-can delete" data-index="${i}"></i>
                     </div>
                 </li>`;
   }
   todos.innerHTML = items;
 }
 
+function displayNoTodoMsg(){
+  if(itemsArray.length==0){
+    notodo.style.visibility= "visible"
+  }
+  else{
+    notodo.style.visibility= "hidden"
+  }
+}
+
 window.onload = function () {
   displayTask();
+  displayNoTodoMsg()
 };
